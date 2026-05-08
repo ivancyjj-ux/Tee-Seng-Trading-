@@ -184,6 +184,8 @@
   .f-dot{width:5px;height:5px;border-radius:50%}
 
   @media(max-width:768px){
+    #lang-toggle-mobile{display:block !important}
+    #lang-toggle-mobile{margin-left:auto}
     .ptn-client-grid{grid-template-columns:1fr 1fr;gap:14px}
     .ptn-client-logo{font-size:16px}
     .ptn-client-card{padding:20px 14px}
@@ -686,6 +688,7 @@
       <span class="logo-cn">天诚贸易 · Import & Distribution</span>
     </div>
   </div></a>
+  <button id="lang-toggle-mobile" onclick="document.getElementById('lang-toggle').click()" style="display:none;background:rgba(11,31,58,0.12);border:1px solid rgba(11,31,58,0.2);color:var(--navy);padding:5px 12px;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;margin-left:auto">EN</button>
   <div class="nav-links">
     <a href="index.html#services">业务 / Services</a>
     <a href="index.html#warehouses">仓库 / Warehouses</a>
@@ -821,6 +824,8 @@ function switchLang(lang) {
   });
   const btn = document.getElementById('lang-toggle');
   if (btn) btn.textContent = lang === 'cn' ? 'EN' : '中文';
+  const mobileBtn = document.getElementById('lang-toggle-mobile');
+  if (mobileBtn) mobileBtn.textContent = lang === 'cn' ? 'EN' : '中文';
   localStorage.setItem('tst-lang', lang);
   document.documentElement.lang = lang === 'cn' ? 'zh' : 'en';
   document.querySelectorAll('a[href]').forEach(a => {
@@ -842,5 +847,45 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 </script>
+
+<!-- Language Selection Modal -->
+<div id="lang-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(11,31,58,0.85);backdrop-filter:blur(8px);align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:12px;padding:48px 40px;text-align:center;max-width:420px;width:90%;box-shadow:0 24px 64px rgba(0,0,0,0.2)">
+    <img src="" style="height:56px;width:auto;margin-bottom:24px">
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:24px;color:#0B1F3A;font-weight:600;margin-bottom:6px">请选择语言</h2>
+    <p style="font-size:14px;color:#6B7280;margin-bottom:32px">Please select your language</p>
+    <div style="display:flex;gap:14px;justify-content:center">
+      <button onclick="selectLang('cn')" style="flex:1;max-width:160px;padding:14px 0;border-radius:6px;border:2px solid #0B1F3A;background:#0B1F3A;color:#fff;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.2s" onmouseover="this.style.background='#163152'" onmouseout="this.style.background='#0B1F3A'">中文</button>
+      <button onclick="selectLang('en')" style="flex:1;max-width:160px;padding:14px 0;border-radius:6px;border:2px solid #C8102E;background:#C8102E;color:#fff;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.2s" onmouseover="this.style.background='#E8395A'" onmouseout="this.style.background='#C8102E'">English</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function selectLang(lang) {
+  document.getElementById('lang-modal').style.display = 'none';
+  switchLang(lang);
+  localStorage.setItem('tst-lang-chosen', 'true');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const langParam = urlParams.get('lang');
+  const alreadyChosen = localStorage.getItem('tst-lang-chosen');
+
+  if (langParam) {
+    // Coming from another page with lang param — skip modal
+    switchLang(langParam);
+  } else if (!alreadyChosen) {
+    // First visit — show modal
+    document.getElementById('lang-modal').style.display = 'flex';
+  } else {
+    // Returning visitor — use saved preference
+    const saved = localStorage.getItem('tst-lang') || 'cn';
+    if (saved === 'en') switchLang('en');
+  }
+});
+</script>
+
 </body>
 </html>
