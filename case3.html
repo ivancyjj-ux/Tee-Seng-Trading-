@@ -830,9 +830,18 @@ function switchLang(lang) {
   if (btn) btn.textContent = lang === 'cn' ? 'EN' : '中文';
   localStorage.setItem('tst-lang', lang);
   document.documentElement.lang = lang === 'cn' ? 'zh' : 'en';
+  document.querySelectorAll('a[href]').forEach(a => {
+    const href = a.getAttribute('href');
+    if (href && (href.endsWith('.html') || href.includes('.html#')) && !href.startsWith('http')) {
+      const base = href.split('?')[0];
+      a.setAttribute('href', lang === 'en' ? base + '?lang=en' : base);
+    }
+  });
 }
 document.addEventListener('DOMContentLoaded', function() {
-  const saved = localStorage.getItem('tst-lang') || 'cn';
+  const urlParams = new URLSearchParams(window.location.search);
+  const langParam = urlParams.get('lang');
+  const saved = langParam || localStorage.getItem('tst-lang') || 'cn';
   if (saved === 'en') switchLang('en');
   const btn = document.getElementById('lang-toggle');
   if (btn) btn.addEventListener('click', function() {
