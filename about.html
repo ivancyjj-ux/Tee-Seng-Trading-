@@ -477,11 +477,11 @@
     </div>
   </div></a>
   <div class="nav-links">
-    <a href="#services" data-cn="业务 / Services" data-en="Services">业务 / Services</a>
-    <a href="#warehouses" data-cn="仓库 / Warehouses" data-en="Warehouses">仓库 / Warehouses</a>
+    <a href="index.html#services" data-cn="业务 / Services" data-en="Services">业务 / Services</a>
+    <a href="index.html#warehouses" data-cn="仓库 / Warehouses" data-en="Warehouses">仓库 / Warehouses</a>
     <a href="cases.html" data-cn="案例 / Cases" data-en="Cases">案例 / Cases</a>
-    <a href="#about" data-cn="关于 / About" data-en="About">关于 / About</a>
-    <a href="#contact" data-cn="联系 / Contact" data-en="Contact">联系 / Contact</a>
+    <a href="about.html" data-cn="关于 / About" data-en="About">关于 / About</a>
+    <a href="index.html#contact" data-cn="联系 / Contact" data-en="Contact">联系 / Contact</a>
     <button id="lang-toggle" style="background:rgba(11,31,58,0.15);border:1px solid rgba(11,31,58,0.25);color:var(--navy);padding:5px 14px;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer;letter-spacing:0.8px;transition:all 0.2s;font-family:inherit">EN</button>
   </div>
 </nav>
@@ -599,10 +599,19 @@ function switchLang(lang) {
   localStorage.setItem('tst-lang', lang);
   // Update html lang attribute
   document.documentElement.lang = lang === 'cn' ? 'zh' : 'en';
+  document.querySelectorAll('a[href]').forEach(a => {
+    const href = a.getAttribute('href');
+    if (href && (href.endsWith('.html') || href.includes('.html#')) && !href.startsWith('http')) {
+      const base = href.split('?')[0];
+      a.setAttribute('href', lang === 'en' ? base + '?lang=en' : base);
+    }
+  });
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  const saved = localStorage.getItem('tst-lang') || 'cn';
+  const urlParams = new URLSearchParams(window.location.search);
+  const langParam = urlParams.get('lang');
+  const saved = langParam || localStorage.getItem('tst-lang') || 'cn';
   if (saved === 'en') switchLang('en');
   const btn = document.getElementById('lang-toggle');
   if (btn) {
