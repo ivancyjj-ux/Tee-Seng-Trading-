@@ -588,46 +588,7 @@
   </div>
 </footer>
 
-<script>
-let currentLang = 'cn';
 
-function switchLang(lang) {
-  currentLang = lang;
-  document.querySelectorAll('[data-cn]').forEach(el => {
-    const val = lang === 'cn' ? el.getAttribute('data-cn') : el.getAttribute('data-en');
-    if (val !== null) el.innerHTML = val;
-  });
-  const btn = document.getElementById('lang-toggle');
-  if (btn) btn.textContent = lang === 'cn' ? 'EN' : '中文';
-  const mobileBtn = document.getElementById('lang-toggle-mobile');
-  if (mobileBtn) mobileBtn.textContent = lang === 'cn' ? 'EN' : '中文';
-  localStorage.setItem('tst-lang', lang);
-  // Update html lang attribute
-  document.documentElement.lang = lang === 'cn' ? 'zh' : 'en';
-  document.querySelectorAll('a[href]').forEach(a => {
-    const href = a.getAttribute('href');
-    if (href && (href.endsWith('.html') || href.includes('.html#')) && !href.startsWith('http')) {
-      const base = href.split('?')[0];
-      a.setAttribute('href', lang === 'en' ? base + '?lang=en' : base);
-    }
-  });
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-  const btn = document.getElementById('lang-toggle');
-  if (btn) {
-    btn.addEventListener('click', function() {
-      switchLang(currentLang === 'cn' ? 'en' : 'cn');
-    });
-  }
-  const mobileBtn = document.getElementById('lang-toggle-mobile');
-  if (mobileBtn) {
-    mobileBtn.addEventListener('click', function() {
-      switchLang(currentLang === 'cn' ? 'en' : 'cn');
-    });
-  }
-});
-</script>
 
 <!-- Language Selection Modal -->
 <div id="lang-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(11,31,58,0.85);backdrop-filter:blur(8px);align-items:center;justify-content:center">
@@ -642,7 +603,33 @@ document.addEventListener('DOMContentLoaded', function() {
   </div>
 </div>
 
+
+
 <script>
+let currentLang = 'cn';
+
+function switchLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('[data-cn]').forEach(el => {
+    const val = lang === 'cn' ? el.getAttribute('data-cn') : el.getAttribute('data-en');
+    if (val !== null) el.innerHTML = val;
+  });
+  const btn = document.getElementById('lang-toggle');
+  if (btn) btn.textContent = lang === 'cn' ? 'EN' : '中文';
+  const mobileBtn = document.getElementById('lang-toggle-mobile');
+  if (mobileBtn) mobileBtn.textContent = lang === 'cn' ? 'EN' : '中文';
+  localStorage.setItem('tst-lang', lang);
+  document.documentElement.lang = lang === 'cn' ? 'zh' : 'en';
+  // Update all internal .html links to carry lang param
+  document.querySelectorAll('a[href]').forEach(a => {
+    const href = a.getAttribute('href');
+    if (href && !href.startsWith('http') && !href.startsWith('mailto') && !href.startsWith('#')) {
+      const base = href.split('?')[0];
+      a.setAttribute('href', lang === 'en' ? base + '?lang=en' : base);
+    }
+  });
+}
+
 function selectLang(lang) {
   document.getElementById('lang-modal').style.display = 'none';
   switchLang(lang);
@@ -650,16 +637,30 @@ function selectLang(lang) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+  // Wire up toggle buttons
+  const btn = document.getElementById('lang-toggle');
+  if (btn) btn.addEventListener('click', function() {
+    switchLang(currentLang === 'cn' ? 'en' : 'cn');
+  });
+  const mobileBtn = document.getElementById('lang-toggle-mobile');
+  if (mobileBtn) mobileBtn.addEventListener('click', function() {
+    switchLang(currentLang === 'cn' ? 'en' : 'cn');
+  });
+
+  // Determine language
   const urlParams = new URLSearchParams(window.location.search);
   const langParam = urlParams.get('lang');
   const alreadyChosen = localStorage.getItem('tst-lang-chosen');
 
   if (langParam) {
-    // Coming from another page with lang param — skip modal
+    // Came from another page with ?lang= param — use it and save
     switchLang(langParam);
+    localStorage.setItem('tst-lang-chosen', 'true');
+    localStorage.setItem('tst-lang', langParam);
   } else if (!alreadyChosen) {
-    // First visit — show modal
-    document.getElementById('lang-modal').style.display = 'flex';
+    // First ever visit — show modal
+    const modal = document.getElementById('lang-modal');
+    if (modal) modal.style.display = 'flex';
   } else {
     // Returning visitor — use saved preference
     const saved = localStorage.getItem('tst-lang') || 'cn';
@@ -667,6 +668,5 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 </script>
-
 </body>
 </html>
